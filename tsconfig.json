@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es6", /*Specify ECMAScript target version*/
+    "target": "es6" /*Specify ECMAScript target version*/,
     "module": "commonjs",
     "moduleResolution": "node",
-    "rootDir": "src",/*ts source direcotry*/
-    "outDir": "dist", /*where to compile javascript files*/
-    "removeComments": true,
+    "resolveJsonModule": true, // allow imports of json files
+    "esModuleInterop": true,
+    "strict": true,
     "noImplicitAny": true,
     "declaration": false,
+    "rootDir": "src" /*ts source direcotry*/,
+    "outDir": "dist" /*where to compile javascript files*/,
+    "removeComments": true
   },
-  "include": [
-      "**/*"
-  ],
-  "exclude": [
-      "node_modules",
-      "**/*.spec.ts"
-  ]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
