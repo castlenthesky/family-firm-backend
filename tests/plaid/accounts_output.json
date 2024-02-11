@@ -1,0 +1,20 @@
+[
+  {
+    "item_id": "66xdY8Kw1xFMazEagsQYTZAXboYjzrHamRLoR",
+    "account_id": "P7k5rOngNku87QpBbp2RhyN1gLxPJaTBdAERV",
+    "mask": "6290",
+    "name": "Spending Account",
+    "name_official": "Spending Account",
+    "type": "depository",
+    "subtype": "checking"
+  },
+  {
+    "item_id": "66xdY8Kw1xFMazEagsQYTZAXboYjzrHamRLoR",
+    "account_id": "q7mynK84zmuL5YpLFxgjs0bK49PwDJCEzEg9d",
+    "mask": "6305",
+    "name": "Personal Savings",
+    "name_official": "Savings Account",
+    "type": "depository",
+    "subtype": "savings"
+  }
+]

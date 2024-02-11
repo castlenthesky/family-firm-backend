@@ -1,0 +1,56 @@
+{
+  "accounts": [
+    {
+      "account_id": "P7k5rOngNku87QPBbp4RhyN1gLXPJATAdAERV",
+      "balances": {
+        "available": 30492.57,
+        "current": 30492.57,
+        "iso_currency_code": "USD",
+        "limit": null,
+        "unofficial_currency_code": null
+      },
+      "mask": "6290",
+      "name": "Spending Account",
+      "official_name": "Spending Account",
+      "subtype": "checking",
+      "type": "depository"
+    },
+    {
+      "account_id": "q7mynK84zmuL5YpKZxgjs0bK49PwDJCEzEg9d",
+      "balances": {
+        "available": 144653.07,
+        "current": 144653.07,
+        "iso_currency_code": "USD",
+        "limit": null,
+        "unofficial_currency_code": null
+      },
+      "mask": "6305",
+      "name": "Personal Savings",
+      "official_name": "Savings Account",
+      "subtype": "savings",
+      "type": "depository"
+    }
+  ],
+  "item": {
+    "available_products": [
+      "balance",
+      "signal",
+      "recurring_transactions"
+    ],
+    "billed_products": [
+      "auth",
+      "transactions"
+    ],
+    "consent_expiration_time": null,
+    "error": null,
+    "institution_id": "ins_25",
+    "item_id": "66xdY8Kw1xFMVzEagAQYIZAXboyjzrHamRLoR",
+    "products": [
+      "auth",
+      "transactions"
+    ],
+    "update_type": "background",
+    "webhook": ""
+  },
+  "request_id": "62hfgysMRfZi2yz"
+}
