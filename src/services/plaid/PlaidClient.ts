@@ -1,83 +1,76 @@
 import config from "../../config";
-import axios, { AxiosInstance } from "axios";
+import {
+  AccountsGetRequest,
+  Configuration,
+  CountryCode,
+  InvestmentsHoldingsGetRequest,
+  ItemPublicTokenExchangeRequest,
+  PlaidApi,
+  PlaidEnvironments,
+  Products,
+  TransactionsSyncRequest,
+} from "plaid";
 
-class PlaidClient {
-  private client: AxiosInstance;
-  private baseUrl: string;
-  private clientId: string;
-  private secret: string;
+const plaid_configuration = new Configuration({
+  basePath: PlaidEnvironments.development,
+  baseOptions: {
+    headers: {
+      "PLAID-CLIENT-ID": config.plaid.client_id,
+      "PLAID-SECRET": config.plaid.secret_key,
+    },
+  },
+});
 
-  constructor() {
-    this.baseUrl = `https://${config.plaid.environment}.plaid.com`;
-    this.clientId = config.plaid.client_id;
-    this.secret = config.plaid.secret_key;
+class PlaidClient extends PlaidApi {
+  public static instance: PlaidApi;
 
-    this.client = axios.create({
-      baseURL: this.baseUrl,
-      headers: {
-        "Content-Type": "application/json",
-        // Additional headers here
-      },
+  // Initialize a link token for the appropriate products
+  public async link_token_create(user_id: string) {
+    PlaidClient.getInstance();
+    PlaidClient.instance.linkTokenCreate({
+      client_name: "Famliy Firm",
+      language: "en",
+      country_codes: [CountryCode.Us],
+      user: { client_user_id: user_id },
+      products: [Products.Balance],
+      required_if_supported_products: [
+        Products.Auth,
+        Products.Transactions,
+        Products.Investments,
+        Products.Liabilities,
+        Products.Assets,
+      ],
     });
   }
 
-  private async makePostRequest(endpoint: string, body: object) {
-    try {
-      const data = {
-        client_id: this.clientId,
-        secret: this.secret,
-        ...body,
-      };
-      const response = await this.client.post(endpoint, data);
-      return response.data;
-    } catch (error) {
-      // Handle or throw error
-      console.error("Error in POST request:", error);
-      throw error;
+  public async item_public_token_exchange(
+    request: ItemPublicTokenExchangeRequest,
+  ) {
+    PlaidClient.instance.itemPublicTokenExchange(request);
+  }
+
+  // Get accounts linked to access token
+  public async getAccounts(request: AccountsGetRequest) {
+    return PlaidClient.instance.accountsGet(request);
+  }
+
+  public async transactions_sync(request: TransactionsSyncRequest) {
+    PlaidClient.instance.transactionsSync(request);
+  }
+
+  public async assets_get(request: InvestmentsHoldingsGetRequest) {
+    PlaidClient.getInstance();
+    PlaidClient.instance.investmentsHoldingsGet(request);
+  }
+
+  // The static method that controls access to the singleton instance.
+  public static getInstance(): PlaidApi {
+    if (!PlaidClient.instance) {
+      PlaidClient.instance = new PlaidApi(plaid_configuration);
     }
-  }
-
-  // Example: Method to create a link token
-  public async createLinkToken(requestData: createLinkTokenBody) {
-    const body = {
-      client_name: "Vue Development Server",
-      country_codes: ["US"],
-      language: "en",
-      ...requestData,
-    };
-    return await this.makePostRequest("/link/token/create", body);
-  }
-
-  public async exchangePublicToken(requestData: { public_token: string }) {
-    return await this.makePostRequest(
-      "/item/public_token/exchange",
-      requestData,
-    );
-  }
-
-  public async retrieveTransactions(requestData: {
-    access_token: string;
-    start_date: Date;
-    end_date: Date;
-  }) {
-    return await this.makePostRequest("/transactions/get", requestData);
+    return PlaidClient.instance;
   }
 }
 
-type AllowedProducts = "auth" | "transactions" | "investments" | "liabilities";
-
-interface createLinkTokenBody {
-  products: AllowedProducts[];
-  user: {
-    client_user_id: string;
-  };
-  client_name?: string;
-  country_codes?: string[];
-  language?: string;
-}
-
-interface IretrieveBalanceBody {
-  access_token: string;
-}
-
-export default PlaidClient;
+const plaid = PlaidClient.getInstance();
+export default plaid;

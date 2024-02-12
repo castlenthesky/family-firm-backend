@@ -1,11 +1,15 @@
-import axios from "axios";
-import { Router, Request, Response } from "express";
 import config from "../config";
-import PlaidClient from "../services/plaid/PlaidClient";
+import { Router, Request, Response } from "express";
+import plaid from "../services/plaid/PlaidClient";
+import { CountryCode, Products } from "plaid";
+
 // import publicRouter from './publicRouter'
 // import adminRouter from './adminRouter'
 
 const router: Router = Router();
+// TODO: Setup public & admin routers
+// router.use('/public', publicRouter)
+// router.use('/admin', isAuthenticated, adminRouter )
 
 router.get("/", (req: Request, res: Response) => {
   res.send(
@@ -16,61 +20,55 @@ router.get("/", (req: Request, res: Response) => {
   );
 });
 
-// TODO: Setup public & admin routers
-// router.use('/public', publicRouter)
-// router.use('/admin', isAuthenticated, adminRouter )
-
-router.post("/link/token/create", async (req: Request, res: Response) => {
+router.post("/auth/linktokencreate", async (req: Request, res: Response) => {
   try {
-    // TODO: Parse information from request to submit to Plaid
-    const data = await req.body;
-    const plaidClient = new PlaidClient();
-    const plaidResponse = await plaidClient.createLinkToken({
-      products: data.products,
-      user: {
-        client_user_id: data.user.client_user_id,
-      },
+    const { user_id } = await req.body;
+    const { data: link_token } = await plaid.linkTokenCreate({
+      client_name: "Famliy Firm",
+      language: "en",
+      country_codes: [CountryCode.Us],
+      user: { client_user_id: user_id },
+      products: [Products.Transactions],
     });
-    return res.send(JSON.stringify(plaidResponse));
+
+    return res.send(JSON.stringify(link_token));
+  } catch (error) {
+    console.error("Error calling Plaid API:", error);
+    return;
+    // return res.status(500).send(error);
+  }
+});
+
+router.post("/auth/exchangetoken", async (req: Request, res: Response) => {
+  try {
+    const { public_token } = req.body;
+    const { data: access_token } = await plaid.itemPublicTokenExchange({
+      public_token,
+    });
+    console.log(access_token);
+    return res.send(JSON.stringify(access_token));
   } catch (error) {
     console.error("Error calling Plaid API:", error);
     return res.status(500).send(error);
   }
 });
 
-router.get(
-  "/item/public_token/exchange",
-  async (req: Request, res: Response) => {
-    try {
-      const reqPublicToken = req.body.public_token;
-      const plaidClient = new PlaidClient();
-      const plaidResponse = await plaidClient.exchangePublicToken({
-        public_token: reqPublicToken,
-      });
-      return res.send(JSON.stringify(plaidResponse));
-    } catch (error) {
-      console.error("Error calling Plaid API:", error);
-      return res.status(500).send(error);
-    }
-  },
-);
-
-router.post("/transactions", async (req: Request, res: Response) => {
-  try {
-    const { access_token, start_date, end_date } = req.body;
-    const plaidClient = new PlaidClient();
-    console.log(access_token, start_date, end_date);
-    const transactions = plaidClient.retrieveTransactions({
-      access_token,
-      start_date,
-      end_date,
-    });
-    return res.send(JSON.stringify(transactions));
-  } catch (error) {
-    console.error("Error calling Plaid API:", error);
-    return res.status(500).send(error);
-  }
-});
+// router.post("/transactions", async (req: Request, res: Response) => {
+//   try {
+//     const { access_token, start_date, end_date } = req.body;
+//     const plaidClient = new PlaidClient();
+//     console.log(access_token, start_date, end_date);
+//     const transactions = plaidClient.retrieveTransactions({
+//       access_token,
+//       start_date,
+//       end_date,
+//     });
+//     return res.send(JSON.stringify(transactions));
+//   } catch (error) {
+//     console.error("Error calling Plaid API:", error);
+//     return res.status(500).send(error);
+//   }
+// });
 
 // Export the router
 export default router;
